@@ -1,6 +1,6 @@
+use sha3::{Keccak256, Digest};
 use solang_parser::lexer::Lexer;
-use std::hash::{Hash, Hasher};
-use std::{fs, collections::hash_map::DefaultHasher};
+use std::fs;
 use std::path::PathBuf;
 use clap::Parser;
 
@@ -22,8 +22,8 @@ fn main() {
         .into_iter()
         .map(|(_, token, _)| token)
         .collect::<Vec<_>>();
-    let mut s = DefaultHasher::new();
-    format!("{:?}", tokens).hash(&mut s);
-    let h = s.finish();
-    println!("{:} {:016x}", cli.file.display(), h);
+    let mut hasher = Keccak256::new();
+    hasher.update(format!("{:?}", tokens));
+    let hash = hasher.finalize();
+    println!("{:} {:016x}", cli.file.display(), hash);
 }
